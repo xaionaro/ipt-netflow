@@ -30,10 +30,10 @@ override_dh_auto_configure:
 
 override_dh_auto_install:
 	# Installing ipt-netflow-common
-	$(MAKE) DESTDIR=$(CURDIR)/debian/$(DEB_NAME)-common install
-	#chmod -x $(CURDIR)/debian/$(DEB_NAME)-common/usr/share/snmp/mibs/IPT-NETFLOW-MIB.my
-	rm -rf $(CURDIR)/debian/$(DEB_NAME)-common/lib/modules
+	$(MAKE) DESTDIR=$(CURDIR)/debian/ipt-netflow-common install
+	#chmod -x $(CURDIR)/debian/ipt-netflow-common/usr/share/snmp/mibs/IPT-NETFLOW-MIB.my
+	rm -rf $(CURDIR)/debian/ipt-netflow-common/lib/modules
 
 	# Installing ipt-netflow-dkms
-	$(MAKE) -C debian DESTDIR=$(CURDIR)/debian/$(DEB_NAME)-dkms NAME=$(NAME) VERSION=$(VERSION) install
+	$(MAKE) -C debian DESTDIR=$(CURDIR)/debian/ipt-netflow-dkms NAME=ipt-netflow VERSION=$(shell grep ^ipt-netflow debian/changelog | awk '{print $$2; exit}' | tr -d "()\n") install
 
