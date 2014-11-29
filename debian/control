@@ -1,0 +1,31 @@
+Source: ipt-netflow
+Section: net
+Priority: optional
+Maintainer: Dmitry Yu Okunev <dyokunev@ut.mephi.ru>
+Build-Depends: debhelper (>= 9), iptables-dev, pkg-config, kmod, dkms, linux-headers-amd64, gawk
+Standards-Version: 3.9.6
+Homepage: https://github.com/aabc/ipt-netflow
+
+Package: ipt-netflow-dkms
+Architecture: any
+Depends: dkms, ${misc:Depends}
+Recommends: linux-headers
+Description: netfilter target which sends traffic statistics via NetFlow
+ ipt-netflow provides netfilter target called NETFLOW.
+ All traffic going through such targets are analyzed and
+ flow statistics is sent over UDP to a NetFlow collector.
+ .
+ Because of running as a kernel module, ipt-netflow is
+ extremely fast.
+
+Package: ipt-netflow-common
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: netfilter target which sends traffic statistics via NetFlow [libs]
+ ipt-netflow provides netfilter target called NETFLOW.
+ All traffic going through such targets are analyzed and
+ flow statistics is sent over UDP to a NetFlow collector.
+ .
+ Because of running as a kernel module, ipt-netflow is
+ extremely fast.
+

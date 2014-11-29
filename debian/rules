@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ 
+
+
+override_dh_auto_clean:
+	[ -f Makefile ] && make clean && rm -f Makefile dkms.conf || true
+
+override_dh_auto_configure:
+	# SNMP agent is disabled due to dependency on openssl that conflicts with GPL-3 [possible-gpl-code-linked-with-openssl]
+	./configure --disable-dkms --disable-snmp-agent || \
+	./configure --disable-dkms --disable-snmp-agent --kdir=/usr/src/linux-headers-$(shell zcat /usr/share/doc/linux-headers-amd64/changelog.gz | awk '{if ($$1=="*" && $$2 == "Update") {print $$4;exit}}')-amd64
+
+	sed -i	\
+		-e 's/$$(DEPMOD)//'\
+		-e "s/IPTABLES_CFLAGS = -DXTABLES/IPTABLES_CFLAGS = -DXTABLES $(shell dpkg-buildflags --get CFLAGS)/"\
+		-e "s/gcc -shared -o/gcc $(shell dpkg-buildflags --get LDFLAGS) -shared -o/"\
+			Makefile
+
+override_dh_auto_install:
+	# Installing ipt-netflow-common
+	$(MAKE) DESTDIR=$(CURDIR)/debian/$(DEB_NAME)-common install
+	#chmod -x $(CURDIR)/debian/$(DEB_NAME)-common/usr/share/snmp/mibs/IPT-NETFLOW-MIB.my
+	rm -rf $(CURDIR)/debian/$(DEB_NAME)-common/lib/modules
+
+	# Installing ipt-netflow-dkms
+	$(MAKE) -C debian DESTDIR=$(CURDIR)/debian/$(DEB_NAME)-dkms NAME=$(NAME) VERSION=$(VERSION) install
+
